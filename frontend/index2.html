@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trooling</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header with login/signup -->
+  <header>
+    <h1>Trooling</h1>
+    <div class="auth-buttons">
+      <button data-tab="login-section">Login</button>
+      <button data-tab="signup-section">Signup</button>
+    </div>
+  </header>
+
+  <!-- Main Tabs -->
+  <main>
+    <!-- Home Tab -->
+    <section id="home-tab" class="tab-content">
+      <h2>Welcome to Trooling</h2>
+      <p>This app lets you share rides and book rides conveniently. Join the community, be a driver or traveler, and track rides easily!</p>
+      <div class="home-auth">
+      </div>
+    </section>
+
+    <!-- Ride Tab -->
+    <section id="ride-tab" class="tab-content">
+      <div class="ride-sub-tabs">
+        <button data-subtab="create-ride">Create Ride</button>
+        <button data-subtab="book-ride">Book Ride</button>
+        <button data-subtab="all-rides">All Rides</button>
+      </div>
+
+      <!-- Create Ride -->
+      <div id="create-ride" class="ride-content">
+        <h3>Create Ride</h3>
+        <input type="text" id="origin" placeholder="From">
+        <input type="text" id="destination" placeholder="To">
+        <input type="date" id="date">
+        <input type="time" id="time">
+        <input type="number" id="seats" placeholder="Seats Available">
+        <input type="number" id="price" placeholder="Price">
+        <button id="submit-ride">Create Ride</button>
+        <p id="ride-error"></p>
+      </div>
+
+      <!-- Book Ride -->
+      <div id="book-ride" class="ride-content" style="display:none;">
+        <h3>Book Ride</h3>
+        <input type="text" id="book-origin" placeholder="From">
+        <input type="text" id="book-destination" placeholder="To">
+        <input type="date" id="book-date">
+        <input type="time" id="book-time">
+        <input type="number" id="book-seats" placeholder="Seats to Book">
+        <button id="submit-book">Book Ride</button>
+      </div>
+
+      <!-- All Rides -->
+      <div id="all-rides" class="ride-content" style="display:none;">
+        <h3>All Rides</h3>
+        <input type="text" id="search-place" placeholder="Search by place">
+        <button id="search-btn">Search</button>
+        <ul id="rides-list"></ul>
+      </div>
+    </section>
+
+    <!-- Profile Tab -->
+    <section id="profile-tab" class="tab-content">
+      <h3>Profile</h3>
+      <input type="text" id="profile-name" placeholder="Name">
+      <input type="text" id="profile-place" placeholder="Place">
+      <input type="text" id="profile-vehicle" placeholder="Vehicle">
+      <input type="email" id="profile-email" placeholder="Email">
+      <input type="tel" id="profile-phone" placeholder="Phone">
+      <label>
+        <input type="checkbox" id="toggle-phone"> Show Phone
+      </label>
+      <input type="file" id="profile-photo">
+      <button id="submit-profile">Update Profile</button>
+
+      <h4>Previous Rides</h4>
+      <ul id="previous-rides"></ul>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login-section" class="tab-content">
+      <h3>Login</h3>
+      <input type="text" id="login-username" placeholder="Username">
+      <input type="password" id="login-password" placeholder="Password">
+      <button class="toggle-pass">Show/Hide</button>
+      <button id="submit-login">Login</button>
+      <p id="login-error"></p>
+      <p>If you don't have an account, <button data-tab="signup-section">Signup</button></p>
+    </section>
+
+    <!-- Signup Section -->
+    <section id="signup-section" class="tab-content">
+      <h3>Signup</h3>
+      <input type="text" id="signup-username" placeholder="Username">
+      <input type="email" id="signup-email" placeholder="Email">
+      <input type="password" id="signup-password" placeholder="Password">
+      <button class="toggle-pass">Show/Hide</button>
+      <button id="submit-signup">Signup</button>
+      <p id="signup-error"></p>
+    </section>
+
+  </main>
+
+  <!-- Bottom Tabs -->
+  <nav class="bottom-tabs">
+    <button class="tab-btn" data-tab="home-tab">Home</button>
+    <button class="tab-btn" data-tab="ride-tab">Ride</button>
+    <button class="tab-btn" data-tab="profile-tab">Profile</button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html> 

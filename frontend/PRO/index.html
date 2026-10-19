@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trooling - Your Travel Pooling Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .tab-btn.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .sub-tab-btn.active {
+            border-bottom: 2px solid #2563eb !important;
+            color: #2563eb !important;
+            font-weight: 600;
+        }
+        .profile-tab-btn.active {
+            background-color: #eef2ff;
+            color: #4f46e5;
+        }
+        .tab-content, .profile-tab-content { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .password-container { position: relative; }
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+        .password-toggle:hover { color: #1f2937; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2563eb; }
+        .toggle-checkbox:checked + .toggle-label .toggle-ball { transform: translateX(100%); }
+        /* Seat Styles */
+        .seat {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid;
+            font-size: 12px;
+        }
+        .seat.available { background-color: #e0f2fe; color: #0c4a6e; border-color: #7dd3fc; }
+        .seat.available:hover { background-color: #bae6fd; }
+        .seat.selected { background-color: #2563eb; color: white; border-color: #1d4ed8; }
+        .seat.booked { background-color: #e5e7eb; color: #6b7280; cursor: not-allowed; border-color: #d1d5db; }
+        .pillion-seat { width: 120px; height: 40px; }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-blue-600">Trooling</h1>
+            <div id="auth-links" class="flex items-center space-x-2">
+                <button id="login-btn-header" class="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition">Login</button>
+                <button id="signup-btn-header" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition">Sign Up</button>
+            </div>
+            <div id="profile-link-container" class="hidden">
+                <button id="logout-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 pb-20">
+        <!-- Home Tab -->
+        <section id="home-section" class="tab-content">
+            <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                <h2 class="text-4xl font-bold mb-4">Welcome to Trooling</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-6">Your friendly, safe, and efficient travel pooling companion. Connect with fellow travelers to make your journey better for your wallet and the planet.</p>
+                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="home-offer-ride-btn" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Offer a Ride</button>
+                    <button id="home-find-ride-btn" class="w-full sm:w-auto bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">Find a Ride</button>
+                    <button id="creator-info-btn" class="w-full sm:w-auto bg-indigo-100 text-indigo-800 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-200 transition">Meet the Creator</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ride Tab -->
+        <section id="ride-section" class="tab-content">
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button class="sub-tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-subtab="create-ride-sub-section">Create Ride</button>
+                        <button class="sub-tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-subtab="book-ride-sub-section">Book Ride</button>
+                        <button class="sub-tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-subtab="all-rides-sub-section">All Rides</button>
+                    </nav>
+                </div>
+                <div id="create-ride-sub-section" class="sub-tab-content">
+                    <form id="create-ride-form" class="space-y-4">
+                        <input type="hidden" id="edit-ride-id">
+                        <div class="flex items-center space-x-3">
+                            <input type="text" id="create-origin" placeholder="From" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                            <input type="text" id="create-destination" placeholder="To" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <input type="date" id="create-date" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        <input type="time" id="create-time" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        <select id="create-vehicle-type" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                            <option value="" disabled selected>Select Vehicle Type</option>
+                            <option value="Car (4 Seater)">Car (4 Seater)</option>
+                            <option value="SUV (6 Seater)">SUV (6 Seater)</option>
+                            <option value="MUV (7 Seater)">MUV (7 Seater)</option>
+                            <option value="Bike">Bike</option>
+                        </select>
+                        <input type="number" id="create-price" placeholder="Price per seat (₹)" min="0" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        <button type="submit" id="create-ride-submit-btn" class="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700 transition">Create Ride</button>
+                    </form>
+                </div>
+                <div id="book-ride-sub-section" class="sub-tab-content">
+                     <form id="book-ride-form" class="space-y-4">
+                        <input type="text" id="book-origin" placeholder="From" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="book-destination" placeholder="To" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <input type="date" id="book-date" class="w-full p-3 border border-gray-300 rounded-md">
+                            <input type="time" id="book-time" class="w-full p-3 border border-gray-300 rounded-md">
+                            <input type="number" id="book-seats" min="1" placeholder="Seats?" class="w-full p-3 border border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700 transition">Search Rides</button>
+                    </form>
+                </div>
+                <div id="all-rides-sub-section" class="sub-tab-content">
+                    <div id="rides-list" class="space-y-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Tab -->
+        <section id="profile-section" class="tab-content">
+             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="md:col-span-1">
+                    <div class="flex flex-col bg-white p-4 rounded-lg shadow-lg">
+                        <button class="profile-tab-btn text-left p-3 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-profiletab="my-profile-sub-section">My Profile</button>
+                        <button class="profile-tab-btn text-left p-3 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-profiletab="my-rides-sub-section">My Rides</button>
+                        <button class="profile-tab-btn text-left p-3 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-profiletab="notifications-sub-section">Notifications</button>
+                    </div>
+                </div>
+                <div class="md:col-span-3">
+                    <div id="my-profile-sub-section" class="profile-tab-content bg-white p-6 rounded-lg shadow-lg">
+                         <div id="profile-view-mode">
+                             <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold">My Profile</h2>
+                                <button id="edit-profile-btn" class="text-sm bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-semibold hover:bg-gray-300">Edit Profile</button>
+                             </div>
+                             <div class="space-y-4">
+                                <div><p class="text-sm text-gray-500">Name</p><p id="view-profile-name" class="font-semibold"></p></div>
+                                <div><p class="text-sm text-gray-500">City</p><p id="view-profile-place" class="font-semibold"></p></div>
+                                <div><p class="text-sm text-gray-500">Vehicle</p><p id="view-profile-vehicle" class="font-semibold"></p></div>
+                                <div><p class="text-sm text-gray-500">Email</p><p id="view-profile-email" class="font-semibold"></p></div>
+                                <div><p class="text-sm text-gray-500">Phone</p><p id="view-profile-phone" class="font-semibold"></p></div>
+                             </div>
+                         </div>
+                         <div id="profile-edit-mode" class="hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold">Edit Profile</h2>
+                                <button id="cancel-edit-profile-btn" class="text-sm text-gray-600 px-4 py-2 rounded-md hover:bg-gray-100">Cancel</button>
+                             </div>
+                             <form id="profile-form" class="space-y-4">
+                                <input type="text" id="profile-name" placeholder="Full Name" class="w-full p-3 border border-gray-300 rounded-md">
+                                <input type="text" id="profile-place" placeholder="Your City (e.g., Hyderabad)" class="w-full p-3 border border-gray-300 rounded-md">
+                                <input type="text" id="profile-vehicle" placeholder="Vehicle (e.g., Honda City)" class="w-full p-3 border border-gray-300 rounded-md">
+                                <input type="email" id="profile-email-edit" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed" disabled>
+                                <input type="tel" id="profile-phone" placeholder="Phone Number" class="w-full p-3 border border-gray-300 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-700">Make phone number public?</span>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input type="checkbox" name="toggle" id="phone-visibility-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                        <label for="phone-visibility-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-green-600 text-white p-3 rounded-md font-semibold hover:bg-green-700 transition">Save Changes</button>
+                             </form>
+                         </div>
+                    </div>
+                    <div id="my-rides-sub-section" class="profile-tab-content bg-white p-6 rounded-lg shadow-lg">
+                        <div class="mb-6">
+                            <h2 class="text-xl font-bold mb-4">Rides I'm Driving</h2>
+                            <div id="my-drove-rides-list" class="space-y-4"></div>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold mb-4">Rides I've Booked</h2>
+                            <div id="my-booked-rides-list" class="space-y-4"></div>
+                        </div>
+                    </div>
+                     <div id="notifications-sub-section" class="profile-tab-content bg-white p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold mb-4">Notifications</h2>
+                        <div id="notifications-list" class="space-y-3"></div>
+                    </div>
+                </div>
+             </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation Tabs -->
+    <nav class="fixed bottom-0 left-0 w-full bg-white shadow-t-lg z-20">
+        <div class="container mx-auto flex justify-around">
+            <button class="tab-btn w-full text-center p-4 text-gray-600 transition" data-tab="home-section">Home</button>
+            <button class="tab-btn w-full text-center p-4 text-gray-600 transition" data-tab="ride-section">Rides</button>
+            <button id="profile-tab-btn" class="tab-btn w-full text-center p-4 text-gray-600 transition hidden" data-tab="profile-section">Profile</button>
+        </div>
+    </nav>
+
+    <!-- Modals -->
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm relative">
+            <button id="close-modal-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <div id="login-form-container">
+                <h2 class="text-2xl font-bold mb-6 text-center">Login to Trooling</h2>
+                <form id="login-form" class="space-y-4">
+                    <input type="email" id="login-email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                    <div class="password-container">
+                        <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        <span class="password-toggle"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.042 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg></span>
+                    </div>
+                    <p id="login-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700">Login</button>
+                </form>
+                <p class="text-center text-sm mt-4">Don't have an account? <button id="go-to-signup" class="text-blue-600 font-semibold">Sign Up</button></p>
+            </div>
+            <div id="signup-form-container" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center">Create your Account</h2>
+                <form id="signup-form" class="space-y-4">
+                    <input type="email" id="signup-email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                    <div class="password-container">
+                        <input type="password" id="signup-password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        <span class="password-toggle"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.042 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg></span>
+                    </div>
+                    <p id="signup-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700">Sign Up</button>
+                </form>
+                <p class="text-center text-sm mt-4">Already have an account? <button id="go-to-login" class="text-blue-600 font-semibold">Login</button></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md relative">
+            <button id="close-booking-modal-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold mb-2 text-center">Book Your Seat</h2>
+            <div id="booking-ride-details" class="text-center text-gray-600 mb-4"></div>
+            <p class="text-center text-sm text-gray-500 mb-4">Select one or more available seats.</p>
+            <div id="seat-map-container" class="mb-4"></div>
+            <button id="confirm-booking-btn" class="w-full bg-green-600 text-white p-3 rounded-md font-semibold hover:bg-green-700 transition" disabled>Confirm Booking</button>
+            <p class="text-center text-xs text-gray-500 mt-2">Payment is settled with the driver after the ride.</p>
+        </div>
+    </div>
+
+    <div id="creator-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm relative text-center">
+            <button id="close-creator-modal-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">About the Creator</h3>
+            <div class="flex flex-col items-center">
+                 <!-- IMPORTANT: Replace this src link with your own "Direct Link" from an image hosting site like postimages.org -->
+                 <img src="https://i.postimg.cc/13xybC1X/L-7.jpg" alt="Photo of Abhiram Paramkusham" class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-blue-200">
+                 <p class="text-lg font-semibold">Abhiram Paramkusham</p>
+                 <p class="text-gray-600">B.Tech CSD Student</p>
+                 <div class="flex space-x-4 mt-4">
+                    <a href="https://www.linkedin.com/in/abhiram-p-195784322/" target="_blank" class="text-gray-500 hover:text-blue-700 transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+                    <a href="https://github.com/abhiram2709" target="_blank" class="text-gray-500 hover:text-gray-900 transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"/></svg></a>
+                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, onSnapshot, where, getDocs, collectionGroup, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtt4wMUK-18M81-HQsE7b9VeOYq0uRchw",
+            authDomain: "trooling-live-app.firebaseapp.com",
+            projectId: "trooling-live-app",
+            storageBucket: "trooling-live-app.appspot.com",
+            messagingSenderId: "347791529217",
+            appId: "1:347791529217:web:09d23175d01963ff71b700",
+            measurementId: "G-GW0DJMNS3W"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let lastActiveTab = 'home-section';
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            attachAllEventListeners();
+            showTab('home-section');
+        });
+        
+        function getVehicleSeatCount(vehicleType) {
+            if (!vehicleType) return 0;
+            if (vehicleType.includes('Car')) return 4;
+            if (vehicleType.includes('SUV')) return 6;
+            if (vehicleType.includes('MUV')) return 7;
+            if (vehicleType.includes('Bike')) return 1;
+            return 0;
+        }
+
+        const attachAllEventListeners = () => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', (e) => showTab(e.currentTarget.dataset.tab)));
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            document.getElementById('home-offer-ride-btn').addEventListener('click', () => { if (!currentUser) return showAuthModal('login'); showTab('ride-section', 'create-ride-sub-section'); });
+            document.getElementById('home-find-ride-btn').addEventListener('click', () => { if (!currentUser) return showAuthModal('login'); showTab('ride-section', 'book-ride-sub-section'); });
+            document.getElementById('creator-info-btn').addEventListener('click', () => document.getElementById('creator-modal').style.display = 'flex');
+            document.getElementById('close-creator-modal-btn').addEventListener('click', () => document.getElementById('creator-modal').style.display = 'none');
+            document.getElementById('close-modal-btn').addEventListener('click', hideAuthModal);
+            document.getElementById('close-booking-modal-btn').addEventListener('click', hideBookingModal);
+            document.getElementById('login-btn-header').addEventListener('click', () => showAuthModal('login'));
+            document.getElementById('signup-btn-header').addEventListener('click', () => showAuthModal('signup'));
+            document.getElementById('go-to-signup').addEventListener('click', () => showAuthModal('signup'));
+            document.getElementById('go-to-login').addEventListener('click', () => showAuthModal('login'));
+            document.getElementById('signup-form').addEventListener('submit', handleSignup);
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    const passwordInput = e.currentTarget.previousElementSibling;
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                });
+            });
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => showSubTab(e.currentTarget.dataset.subtab)));
+            document.getElementById('create-ride-form').addEventListener('submit', handleCreateRide);
+            document.getElementById('book-ride-form').addEventListener('submit', handleSearchRides);
+            document.querySelectorAll('.profile-tab-btn').forEach(btn => btn.addEventListener('click', (e) => showProfileSubTab(e.currentTarget.dataset.profiletab)));
+            document.getElementById('edit-profile-btn').addEventListener('click', () => setProfileMode('edit'));
+            document.getElementById('cancel-edit-profile-btn').addEventListener('click', () => {
+                loadUserProfile(); // Revert any changes
+                setProfileMode('view');
+            });
+            document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
+            document.getElementById('rides-list').addEventListener('click', handleRideListClick);
+            document.getElementById('my-drove-rides-list').addEventListener('click', handleMyRidesListClick);
+            document.getElementById('confirm-booking-btn').addEventListener('click', handleConfirmBooking);
+        };
+
+        const showTab = (tabId, subTabId = null) => {
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            lastActiveTab = tabId;
+            if (tabId === 'ride-section') showSubTab(subTabId || 'create-ride-sub-section');
+            if (tabId === 'profile-section') showProfileSubTab('my-profile-sub-section');
+        };
+
+        const showSubTab = (subTabId) => {
+            document.querySelectorAll('.sub-tab-content').forEach(content => content.style.display = 'none');
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(subTabId).style.display = 'block';
+            document.querySelector(`.sub-tab-btn[data-subtab="${subTabId}"]`).classList.add('active');
+        };
+
+        const showProfileSubTab = (profileTabId) => {
+            document.querySelectorAll('.profile-tab-content').forEach(content => content.style.display = 'none');
+            document.querySelectorAll('.profile-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(profileTabId).style.display = 'block';
+            document.querySelector(`.profile-tab-btn[data-profiletab="${profileTabId}"]`).classList.add('active');
+            if (profileTabId === 'my-rides-sub-section') {
+                loadMyDroveRides();
+                loadMyBookedRides();
+            }
+        };
+
+        const setProfileMode = (mode) => {
+            document.getElementById('profile-view-mode').style.display = mode === 'view' ? 'block' : 'none';
+            document.getElementById('profile-edit-mode').style.display = mode === 'edit' ? 'block' : 'none';
+        };
+
+        const handleSignup = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorP = document.getElementById('signup-error');
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "users", userCredential.user.uid), { email: userCredential.user.email, createdAt: new Date() });
+                hideAuthModal();
+                showTab('profile-section');
+            } catch (error) {
+                errorP.textContent = error.message;
+                errorP.style.display = 'block';
+            }
+        };
+
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorP = document.getElementById('login-error');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                hideAuthModal();
+                showTab(lastActiveTab);
+            } catch (error) {
+                errorP.textContent = "Invalid email or password.";
+                errorP.style.display = 'block';
+            }
+        };
+
+        const handleProfileUpdate = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            const profileData = {
+                name: document.getElementById('profile-name').value,
+                place: document.getElementById('profile-place').value,
+                vehicle: document.getElementById('profile-vehicle').value,
+                phone: document.getElementById('profile-phone').value,
+                isPhonePublic: document.getElementById('phone-visibility-toggle').checked
+            };
+            await setDoc(doc(db, "users", currentUser.uid), profileData, { merge: true });
+            alert('Profile Updated!');
+            await loadUserProfile();
+            setProfileMode('view');
+        };
+
+        const handleCreateRide = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return showAuthModal('login');
+            const userProfileSnap = await getDoc(doc(db, "users", currentUser.uid));
+            const rideData = {
+                driverId: currentUser.uid,
+                driverName: userProfileSnap.exists() ? userProfileSnap.data().name : 'Anonymous',
+                origin: document.getElementById('create-origin').value.trim(),
+                destination: document.getElementById('create-destination').value.trim(),
+                date: document.getElementById('create-date').value,
+                time: document.getElementById('create-time').value,
+                vehicleType: document.getElementById('create-vehicle-type').value,
+                price: parseFloat(document.getElementById('create-price').value),
+                createdAt: new Date()
+            };
+            const rideId = document.getElementById('edit-ride-id').value;
+            if (rideId) {
+                await updateDoc(doc(db, "rides", rideId), rideData);
+                alert('Ride updated successfully!');
+            } else {
+                await addDoc(collection(db, "rides"), rideData);
+                alert('Ride created successfully!');
+            }
+            e.target.reset();
+            document.getElementById('edit-ride-id').value = '';
+            document.getElementById('create-ride-submit-btn').textContent = 'Create Ride';
+            showTab('profile-section');
+            showProfileSubTab('my-rides-sub-section');
+        };
+        
+        const handleSearchRides = (e) => {
+            e.preventDefault();
+            const filters = {
+                origin: document.getElementById('book-origin').value.trim(),
+                destination: document.getElementById('book-destination').value.trim(),
+                date: document.getElementById('book-date').value,
+                time: document.getElementById('book-time').value,
+                seats: parseInt(document.getElementById('book-seats').value) || 1
+            };
+            listenForRides(filters);
+            showSubTab('all-rides-sub-section');
+        };
+
+        const handleRideListClick = async (e) => {
+            const bookButton = e.target.closest('.book-seats-btn');
+            if (bookButton) {
+                if (!currentUser) return showAuthModal('login');
+                const rideId = bookButton.dataset.rideId;
+                const rideRef = doc(db, "rides", rideId);
+                const rideSnap = await getDoc(rideRef);
+                if (!rideSnap.exists()) return alert('Ride not found!');
+                const rideData = rideSnap.data();
+                document.getElementById('booking-ride-details').innerHTML = `${rideData.origin} &rarr; ${rideData.destination}`;
+                const bookingsRef = collection(db, "rides", rideId, "bookings");
+                onSnapshot(bookingsRef, (bookingsSnap) => {
+                    const bookings = bookingsSnap.docs.map(d => d.data());
+                    renderSeatMap(rideData, bookings, rideId);
+                    showBookingModal();
+                });
+            }
+        };
+
+        const handleMyRidesListClick = async (e) => {
+            const editButton = e.target.closest('.edit-ride-btn');
+            if (editButton) {
+                const rideId = editButton.dataset.rideId;
+                const rideSnap = await getDoc(doc(db, "rides", rideId));
+                if (rideSnap.exists()) {
+                    const ride = rideSnap.data();
+                    document.getElementById('edit-ride-id').value = rideId;
+                    document.getElementById('create-origin').value = ride.origin;
+                    document.getElementById('create-destination').value = ride.destination;
+                    document.getElementById('create-date').value = ride.date;
+                    document.getElementById('create-time').value = ride.time;
+                    document.getElementById('create-vehicle-type').value = ride.vehicleType;
+                    document.getElementById('create-price').value = ride.price;
+                    document.getElementById('create-ride-submit-btn').textContent = 'Update Ride';
+                    showTab('ride-section', 'create-ride-sub-section');
+                }
+            }
+        };
+
+        const handleConfirmBooking = async () => {
+             const selectedSeats = Array.from(document.getElementById('seat-map-container').querySelectorAll('.seat.selected'));
+             const currentBookingRideId = document.getElementById('booking-modal').dataset.rideId;
+             if (!currentUser || !currentBookingRideId || selectedSeats.length === 0) return;
+             
+             const rideRef = doc(db, "rides", currentBookingRideId);
+             const rideSnap = await getDoc(rideRef);
+             if (!rideSnap.exists()) return alert('Ride details not found!');
+             
+             const rideData = rideSnap.data();
+             const bookerSnap = await getDoc(doc(db, "users", currentUser.uid));
+             const bookerName = bookerSnap.exists() && bookerSnap.data().name ? bookerSnap.data().name : 'A user';
+             
+             try {
+                for (const seat of selectedSeats) {
+                    const seatNumber = seat.dataset.seatNumber;
+                    const bookingRef = doc(collection(db, "rides", currentBookingRideId, "bookings"));
+                    await setDoc(bookingRef, { userId: currentUser.uid, seatNumber, bookerName, bookedAt: new Date() });
+                }
+                const notificationForDriver = { forUserId: rideData.driverId, message: `${bookerName} booked ${selectedSeats.length} seat(s) for your ride from ${rideData.origin} to ${rideData.destination}.`, timestamp: new Date() };
+                await addDoc(collection(db, "notifications"), notificationForDriver);
+                const notificationForBooker = { forUserId: currentUser.uid, message: `You successfully booked ${selectedSeats.length} seat(s) with ${rideData.driverName} from ${rideData.origin} to ${rideData.destination}.`, timestamp: new Date() };
+                await addDoc(collection(db, "notifications"), notificationForBooker);
+                
+                alert(`Successfully booked ${selectedSeats.length} seat(s)!`);
+                hideBookingModal();
+             } catch (error) {
+                console.error("Booking failed:", error);
+                alert("Could not book seats. They may have been taken. Please try again.");
+             }
+        };
+
+        onAuthStateChanged(auth, user => {
+            const profileTabBtn = document.getElementById('profile-tab-btn');
+            if (user) {
+                currentUser = { uid: user.uid, email: user.email };
+                document.getElementById('auth-links').style.display = 'none';
+                document.getElementById('profile-link-container').style.display = 'block';
+                profileTabBtn.classList.remove('hidden');
+                loadUserProfile();
+                listenForRides({});
+                listenForNotifications();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-links').style.display = 'flex';
+                document.getElementById('profile-link-container').style.display = 'none';
+                profileTabBtn.classList.add('hidden');
+                showTab('home-section');
+            }
+        });
+
+        const loadUserProfile = async () => {
+            if (!currentUser) return;
+            const docRef = doc(db, "users", currentUser.uid);
+            const docSnap = await getDoc(docRef);
+            document.getElementById('view-profile-email').textContent = currentUser.email;
+            document.getElementById('profile-email-edit').value = currentUser.email;
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const fields = ['name', 'place', 'vehicle', 'phone'];
+                fields.forEach(field => {
+                    document.getElementById(`view-profile-${field}`).textContent = data[field] || 'Not set';
+                    document.getElementById(`profile-${field}`).value = data[field] || '';
+                });
+                document.getElementById('phone-visibility-toggle').checked = data.isPhonePublic || false;
+            }
+        };
+        
+        const listenForRides = async (filters = {}) => {
+            let constraints = [];
+            const origin = filters.origin;
+            const destination = filters.destination;
+            if (origin) constraints.push(where("origin", ">=", origin), where("origin", "<=", origin + '\uf8ff'));
+            if (destination) constraints.push(where("destination", ">=", destination), where("destination", "<=", destination + '\uf8ff'));
+            if (filters.date) constraints.push(where("date", "==", filters.date));
+            if (filters.time) constraints.push(where("time", ">=", filters.time));
+            
+            const q = query(collection(db, "rides"), ...constraints);
+            onSnapshot(q, async (querySnapshot) => {
+                const ridesList = document.getElementById('rides-list');
+                ridesList.innerHTML = '<div class="text-center text-gray-500">Loading rides...</div>';
+                let rides = [];
+                for (const rideDoc of querySnapshot.docs) {
+                    const ride = { id: rideDoc.id, ...rideDoc.data() };
+                    const rideDateTime = new Date(`${ride.date}T${ride.time}`);
+                    if (rideDateTime < new Date()) continue; // Skip past rides
+
+                    const bookingsSnap = await getDocs(collection(db, "rides", ride.id, "bookings"));
+                    const totalSeats = getVehicleSeatCount(ride.vehicleType);
+                    ride.availableSeats = totalSeats - bookingsSnap.size;
+                    
+                    if (ride.availableSeats > 0) { // Only add rides with seats
+                       rides.push(ride);
+                    }
+                }
+                if (filters.seats) {
+                    rides = rides.filter(ride => ride.availableSeats >= filters.seats);
+                }
+                renderRidesList(rides, ridesList);
+            });
+        };
+
+        const renderRidesList = (rides, container) => {
+            container.innerHTML = '';
+            if (rides.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-center">No rides match your search.</p>`;
+                return;
+            }
+            rides.forEach(ride => {
+                const rideElement = document.createElement('div');
+                rideElement.className = 'border p-4 rounded-lg bg-gray-50 space-y-3';
+                rideElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg">${ride.origin} &rarr; ${ride.destination}</p>
+                            <p class="text-sm text-gray-600">${ride.date} at ${ride.time}</p>
+                            <p class="text-sm text-gray-500">Driver: ${ride.driverName || 'N/A'} (${ride.vehicleType})</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-xl text-blue-600">₹${ride.price}</p>
+                            <p class="text-sm font-semibold text-green-600">${ride.availableSeats} seats left</p>
+                        </div>
+                    </div>
+                    <button data-ride-id="${ride.id}" class="book-seats-btn w-full text-sm bg-teal-100 text-teal-800 p-2 rounded-md font-semibold hover:bg-teal-200 transition ${ride.driverId === currentUser?.uid ? 'opacity-50 cursor-not-allowed' : ''}" ${ride.driverId === currentUser?.uid ? 'disabled' : ''}>${ride.driverId === currentUser?.uid ? 'Your Ride' : 'Book Seats'}</button>`;
+                container.appendChild(rideElement);
+            });
+        };
+
+        const loadMyDroveRides = () => {
+            if (!currentUser) return;
+            const q = query(collection(db, "rides"), where("driverId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('my-drove-rides-list');
+                container.innerHTML = '';
+                if(snapshot.empty) {
+                    container.innerHTML = '<p class="text-sm text-gray-500">You have not created any rides yet.</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const ride = { id: doc.id, ...doc.data() };
+                    const rideEl = document.createElement('div');
+                    rideEl.className = 'p-3 border rounded-md bg-gray-50 flex justify-between items-center';
+                    rideEl.innerHTML = `<div><p class="font-semibold">${ride.origin} to ${ride.destination}</p><p class="text-sm text-gray-600">${ride.date}</p></div><button class="edit-ride-btn text-sm text-blue-600 hover:underline" data-ride-id="${ride.id}">Edit</button>`;
+                    container.appendChild(rideEl);
+                });
+            });
+        };
+
+        const loadMyBookedRides = async () => {
+            if (!currentUser) return;
+            const container = document.getElementById('my-booked-rides-list');
+            container.innerHTML = '';
+            const bookingsQuery = query(collectionGroup(db, 'bookings'), where('userId', '==', currentUser.uid));
+            const bookingsSnap = await getDocs(bookingsQuery);
+            if (bookingsSnap.empty) {
+                container.innerHTML = '<p class="text-sm text-gray-500">You have not booked any rides yet.</p>';
+                return;
+            }
+            const ridePromises = bookingsSnap.docs.map(doc => getDoc(doc.ref.parent.parent));
+            const rideDocs = await Promise.all(ridePromises);
+            rideDocs.forEach(rideDoc => {
+                if (rideDoc.exists()) {
+                    const ride = rideDoc.data();
+                    const rideEl = document.createElement('div');
+                    rideEl.className = 'p-3 border rounded-md bg-gray-50';
+                    rideEl.innerHTML = `<p class="font-semibold">${ride.origin} to ${ride.destination}</p><p class="text-sm text-gray-600">With ${ride.driverName} on ${ride.date}</p>`;
+                    container.appendChild(rideEl);
+                }
+            });
+        };
+
+        const listenForNotifications = () => {
+            if(!currentUser) return;
+            const q = query(collection(db, "notifications"), where("forUserId", "==", currentUser.uid), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('notifications-list');
+                container.innerHTML = '';
+                if(snapshot.empty) {
+                    container.innerHTML = '<p class="text-sm text-gray-500">You have no new notifications.</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const notif = doc.data();
+                    const notifEl = document.createElement('div');
+                    notifEl.className = 'p-3 border-l-4 border-blue-500 bg-blue-50';
+                    notifEl.innerHTML = `<p class="text-sm text-blue-800">${notif.message}</p><p class="text-xs text-blue-500 mt-1">${new Date(notif.timestamp.toDate()).toLocaleString()}</p>`;
+                    container.appendChild(notifEl);
+                });
+            });
+        };
+
+        const renderSeatMap = (ride, bookings, rideId) => {
+            document.getElementById('booking-modal').dataset.rideId = rideId;
+            const container = document.getElementById('seat-map-container');
+            container.innerHTML = '';
+            const bookedSeatNumbers = bookings.map(b => b.seatNumber);
+            let seatGrid = '';
+            if (ride.vehicleType.includes('Car')) {
+                seatGrid = `<div class="flex justify-around mb-2"><div class="seat" data-seat-number="1">1</div><div class="seat booked">🚗</div></div><div class="flex justify-around"><div class="seat" data-seat-number="2">2</div><div class="seat" data-seat-number="3">3</div><div class="seat" data-seat-number="4">4</div></div>`;
+            } else if (ride.vehicleType.includes('SUV')) {
+                 seatGrid = `<div class="flex justify-around mb-2"><div class="seat" data-seat-number="1">1</div><div class="seat booked">🚗</div></div><div class="flex justify-around mb-2"><div class="seat" data-seat-number="2">2</div><div class="seat" data-seat-number="3">3</div></div><div class="flex justify-around"><div class="seat" data-seat-number="4">4</div><div class="seat" data-seat-number="5">5</div><div class="seat" data-seat-number="6">6</div></div>`;
+            } else if (ride.vehicleType.includes('MUV')) {
+                 seatGrid = `<div class="flex justify-around mb-2"><div class="seat" data-seat-number="1">1</div><div class="seat booked">🚗</div></div><div class="flex justify-around mb-2"><div class="seat" data-seat-number="2">2</div><div class="seat" data-seat-number="3">3</div><div class="seat" data-seat-number="4">4</div></div><div class="flex justify-around"><div class="seat" data-seat-number="5">5</div><div class="seat" data-seat-number="6">6</div><div class="seat" data-seat-number="7">7</div></div>`;
+            } else if (ride.vehicleType.includes('Bike')) {
+                seatGrid = `<div class="flex justify-center items-center space-x-2"><div class="seat booked">Rider</div><div class="seat pillion-seat" data-seat-number="1">Pillion</div></div>`;
+            }
+            container.innerHTML = seatGrid;
+            document.querySelectorAll('.seat').forEach(seat => {
+                const seatNumber = seat.dataset.seatNumber;
+                if (!seatNumber) return;
+                seat.className = bookedSeatNumbers.includes(seatNumber) ? 'seat booked' : 'seat available';
+                seat.addEventListener('click', () => {
+                    if (seat.classList.contains('available')) {
+                        seat.classList.toggle('selected');
+                        const selectedSeats = document.querySelectorAll('.seat.selected');
+                        document.getElementById('confirm-booking-btn').disabled = selectedSeats.length === 0;
+                    }
+                });
+            });
+        };
+
+        const hideAuthModal = () => document.getElementById('auth-modal').style.display = 'none';
+        const showAuthModal = (formType = 'login') => {
+            const modal = document.getElementById('auth-modal');
+            modal.style.display = 'flex';
+            modal.querySelector('#login-form-container').style.display = formType === 'login' ? 'block' : 'none';
+            modal.querySelector('#signup-form-container').style.display = formType === 'signup' ? 'block' : 'none';
+        };
+        const showBookingModal = () => document.getElementById('booking-modal').style.display = 'flex';
+        const hideBookingModal = () => document.getElementById('booking-modal').style.display = 'none';
+    </script>
+</body>
+</html>
+

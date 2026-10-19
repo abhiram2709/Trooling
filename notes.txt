@@ -1,0 +1,39 @@
+i want an interactive and nice looking page with diff tabs
+password visible button
+where is signup button for new users and signup also should redirect to page where they left off
+it is showing error connecting to server
+"all rides" i want it in separate tab
+-------------------------
+go on and if i want to see this app in other device or somewhere how can i see? and
+i want "home page" telling wt this app is and whereabouts everything which will be in home page or about us page i want it 
+make UI more interesting
+include "Password visibility toggle" inside the password box with smooth animation
+and main important remember this is a project which is going out live for people so everyone can access it and give their data in it
+--------------------------------------------
+why can't we create separate files for each button/tab so that it is easy to change that 
+i want tab names to be visible in black color just change their words
+>hometab:
+details about the app
+signup and login at top right corner of this tab also
+>ride tab:
+and i want "ride tab" in that i want "create ride" and "book ride" in both i want "from-where in flight booking style, d-m-yr, time"
+in "create-> seats free,price" "book->seats want to book"
+>login redirects to where pperson left working before coming to this page
+>signup redirects to profile to update it
+>profile tab:
+it has the details of person "name,place,vehicle,mail,phone number(it has the opt of he can hide it or reveal it),photo"
+--------------------------------------------------
+let whole UI be the same just do the changes which i say:
+login and signup can be opened from homepage and ride(sub folders when we click on create and book) in both ways they has to be redirected
+profile needs an update: add previous rides which they rode , profile only should be visible to people who  login or signup
+and u forgot to add "all rides" which containing all rides which are available now and it need to have search button for searching places 
+----------------------------------------
+everything is great but there need to be some changes:
+in "rides page" add "all rides"	and create a "profile tab" as separate page details which already i gave u if we need we will edit it later and "price section" will be in INR and blue color is not changing from crate to book when we click on it it should change. and book ride also should have same features like create ride "here changes are seats u want to book" payment should be after the ride
+If possible i want seats to be visible as the vehicle the person will be giving (like if it is a car it has to show car and inside seats which are booked and not booked) if it is bike it should show bike and seat like "bms"				rememeber this is a project which will be live for people to use it so it should be easy for them to use and how can i deploy it live?							 																			
+
+
+
+
+
+
